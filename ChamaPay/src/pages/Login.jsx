@@ -1,0 +1,26 @@
+function Login (){
+    return(
+        <div className='min-h-screen items-center bg-gray-50 justify-center p-6'>
+         <div className="flex flex-col gap-5">   
+           <div className="text-center">
+             <h1 className='font-bold text-3xl'>Chama App</h1>
+             <p className="mt-1 text-gray-650">Track contributions. Remind Members</p>
+           </div> 
+           <div className="flex flex-col gap-1">
+             <label htmlFor="email">Email</label>
+             <input id="email" type="email" placeholder="you@example.com" className="rounded-lg border border-grey-400 px-2 py-2" />
+           </div>
+            <div className="flex flex-col gap-1">
+             <label htmlFor="password">Password</label>
+             <input id="password" type="password" className="rounded-lg border border-grey-400 px-2 py-2" />
+           </div>
+           <button className="rounded-lg bg-blue-700 py-3 font-semibold text-white"> Login</button>
+            <p className="text-sm text-center">or</p>
+           <button>Continue with Google</button>
+
+           <p className="text-center">New here? <a href="#" className="font-semibold text-blue-700" >Create Account</a></p>      
+         </div>
+        </div>
+    )
+}
+export default Login
