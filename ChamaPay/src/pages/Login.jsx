@@ -14,7 +14,7 @@ function Login (){
              <label htmlFor="password">Password</label>
              <input id="password" type="password" className="rounded-lg border border-grey-400 px-2 py-2" />
            </div>
-           <button> Login</button>
+           <button className="rounded-lg bg-blue-700 py-3 font-semibold text-white"> Login</button>
             <p className="text-sm text-center">or</p>
            <button>Continue with Google</button>
 

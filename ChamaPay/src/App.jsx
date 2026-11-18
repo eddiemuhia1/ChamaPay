@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import Login from './Login'
+import SignUp from './pages/SignUp'
+import Login from './pages/Login'
 
 function App() {
   const [count, setCount] = useState(0)
