@@ -1,4 +1,18 @@
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase";
+
 function SignUp (){
+
+   const handleGoogleSignUp = async () => {
+    try {
+      const result = await signInWithPopup (auth, googleProvider);
+      console.log("Signed up as:", result.user.displayName)
+    
+    } catch (error) {
+      console.error("Error signing up:", error.message)
+    }
+  }
+
     return(
         <div className='min-h-screen items-center bg-gray-50 justify-center p-6'>
          <div className="flex flex-col gap-5">
@@ -29,7 +43,7 @@ function SignUp (){
              </select>  
            </div>
 
-           <button className="rounded-lg bg-blue-700 py-3 font-semibold text-white">Create Account</button>
+           <button type='button' onClick={handleGoogleSignUp} className="rounded-lg border-2 border-blue-700 py-3 font-semibold text-blue-700">Create Account</button>
            <p  >
              Already have an account? <br/>
               <a href="#" className="font-semibold text-blue-700">Login</a>
