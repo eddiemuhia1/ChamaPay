@@ -1,0 +1,10 @@
+function Home (){
+    return(
+        <div>
+           <h1>Chama Hub</h1>
+           <p>You are logged in</p> 
+        </div>
+    )
+
+}
+export default Home
