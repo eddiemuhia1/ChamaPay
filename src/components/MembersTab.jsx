@@ -12,6 +12,17 @@ function MembersTab({ members }) {
   const [dueDate, setDueDate] = useState(""); 
   const [message, setMessage] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState("all"); 
+
+  const filteredMembers = members.filter((member) => {
+    const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesFilter = true;
+    if (filter === "paid") matchesFilter = member.paid === true;
+    if (filter === "unpaid") matchesFilter = member.paid === false;
+    return matchesSearch && matchesFilter;
+  });
+
   const handleAddMember = async () => {
     if (!name.trim() || !amount || !dueDate) {
       setMessage("Enter name, amount, and a due date.");
@@ -19,7 +30,11 @@ function MembersTab({ members }) {
     }
     try {
       await addDoc(collection(db, "members"), {
-        name: name.trim(), amount: Number(amount), dueDate: dueDate, paid: false, treasurerId: user.uid,
+        name: name.trim(),
+        amount: Number(amount),
+        dueDate: dueDate,
+        paid: false,
+        treasurerId: user.uid,
       });
       
       setName("");
@@ -33,19 +48,33 @@ function MembersTab({ members }) {
     }
   };
 
+  // --- NEW: Helper logic for Dates and Badges ---
+  const isLate = (dateString) => {
+    if (!dateString) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to midnight for a fair comparison
+    const due = new Date(dateString);
+    return due < today;
+  };
+
+  const getBadgeStyle = (member) => {
+    if (member.paid) return "border-green-600 text-green-700";
+    if (isLate(member.dueDate)) return "border-red-600 text-red-700";
+    return "border-gray-500 text-gray-700"; // Standard unpaid
+  };
+
   return (
     <div className="mt-5">
-      {/* Header & Add Button */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900">Members</h2>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="rounded-lg border-2 border-[#1d63b8] bg-white px-4 py-1.5 text-sm font-semibold text-[#1d63b8]">
+          className="rounded-lg border border-[#1d63b8] bg-white px-4 py-1.5 text-sm font-semibold text-[#1d63b8]"
+        >
           {isAdding ? "Cancel" : "Add member"}
         </button>
       </div>
 
-      {/* The Toggleable Form */}
       {isAdding && (
         <div className="mt-4 rounded-xl border border-gray-300 bg-gray-50 p-4">
           <h3 className="text-sm font-bold text-gray-900">New Member Details</h3>
@@ -73,10 +102,61 @@ function MembersTab({ members }) {
         </div>
       )}
 
-      {/* Temporary placeholder for our list */}
       <div className="mt-6">
-        <p className="text-sm text-gray-500">We have {members.length} members.</p>
+        <label className="text-sm font-bold text-gray-900">Search members</label>
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        />
+
+        <div className="mt-3 flex gap-2">
+          {["all", "paid", "unpaid"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`rounded-lg border px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
+                filter === f
+                  ? "bg-[#1d63b8] border-[#1d63b8] text-white"
+                  : "bg-white border-gray-300 text-gray-600 hover:border-[#1d63b8]"
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* --- NEW: The Actual Member List --- */}
+      <ul className="mt-4 divide-y divide-gray-200">
+        {filteredMembers.length === 0 ? (
+          <p className="py-4 text-sm text-gray-500">No members match your search.</p>
+        ) : (
+          filteredMembers.map((m) => {
+            const late = !m.paid && isLate(m.dueDate);
+            return (
+              <li key={m.id} className="flex items-center justify-between py-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 shrink-0 rounded-full bg-gray-300" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{m.name}</p>
+                    <p className="text-xs text-gray-500">
+                      KES {m.amount.toLocaleString()} - {late ? "Overdue since" : "Due"} {m.dueDate || "N/A"}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Status Badge */}
+                <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getBadgeStyle(m)}`}>
+                  {m.paid ? "Paid" : late ? "Late" : "Unpaid"}
+                </span>
+              </li>
+            );
+          })
+        )}
+      </ul>
     </div>
   );
 }
