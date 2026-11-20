@@ -19,7 +19,9 @@ function Signup() {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(result.user, { displayName: name });
-      await setDoc(doc(db, "users", result.user.uid), { name, email, role });
+
+      await setDoc(doc(db, "users", result.user.uid), { name, email, role }); //save user details on firestore database
+
       navigate("/home");
     } catch (err) {
       console.error("Error signing up:", err.code);
@@ -79,24 +81,13 @@ function Signup() {
 
         <div className="flex flex-col gap-1">
           <label htmlFor="signup-password" className="text-sm font-semibold">Password</label>
-          <input
-            id="signup-password"
-            type="password"
-            placeholder="At least 6 characters"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="rounded-lg border border-gray-400 px-3 py-3"
-          />
+          <input id="signup-password" type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)}
+            className="rounded-lg border border-gray-400 px-3 py-3" />
         </div>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="role" className="text-sm font-semibold">I am a</label>
-          <select
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="rounded-lg border border-gray-400 bg-white px-3 py-3"
-          >
+          <select id="role" value={role} onChange={(e) => setRole(e.target.value)} className="rounded-lg border border-gray-400 bg-white px-3 py-3">  
             <option value="member">Member</option>
             <option value="treasurer">Treasurer</option>
           </select>
