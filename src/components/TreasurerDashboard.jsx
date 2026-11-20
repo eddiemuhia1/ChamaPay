@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { addDoc, collection, doc, onSnapshot, query, updateDoc, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 
@@ -15,7 +23,7 @@ function TreasurerDashboard() {
 
     const membersQuery = query(
       collection(db, "members"),
-      where("treasurerId", "==", user.uid)
+      where("treasurerId", "==", user.uid),
     );
 
     const unsubscribe = onSnapshot(membersQuery, (snap) => {
@@ -55,14 +63,44 @@ function TreasurerDashboard() {
       setMessage("Could not update the member. Try again.");
     }
   };
- 
+  const totalExpected = members.reduce((sum, m) => sum + m.amount, 0);
+  const paidMembers = members.filter((m) => m.paid);
+  const totalCollected = paidMembers.reduce((sum, m) => sum + m.amount, 0);
+  const progress =
+    members.length === 0
+      ? 0
+      : Math.round((paidMembers.length / members.length) * 100);
   return (
     <section className="mt-6 max-w-sm">
       <h2 className="text-xl font-semibold">Treasurer dashboard</h2>
+      <div className="mt-4 rounded-xl border border-gray-400 bg-white p-4">
+        <p className="text-sm text-gray-600">Total collected</p>
+        <p className="text-3xl font-bold">KES {totalCollected}</p>
+        <p className="mt-1 text-sm text-gray-700">
+          of KES {totalExpected} expected
+        </p>
+        <p className="mt-3 text-sm font-semibold">
+          {paidMembers.length} of {members.length} members paid
+        </p>
+        <div
+          role="progressbar"
+          aria-label="Members who have paid"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          className="mt-2 h-2 rounded-full bg-gray-200">
+          <div
+            className="h-2 rounded-full bg-blue-700"
+            style={{ width: `${progress}%` }}>
+          </div>
+        </div>
+      </div>
       <h3 className="mt-4 font-semibold">Add a member</h3>
 
       <div className="mt-2 flex flex-col gap-1">
-        <label htmlFor="member-name" className="text-sm font-semibold">Member name</label>
+        <label htmlFor="member-name" className="text-sm font-semibold">
+          Member name
+        </label>
         <input
           id="member-name"
           type="text"
@@ -73,7 +111,9 @@ function TreasurerDashboard() {
       </div>
 
       <div className="mt-3 flex flex-col gap-1">
-        <label htmlFor="member-amount" className="text-sm font-semibold">Contribution amount (KES)</label>
+        <label htmlFor="member-amount" className="text-sm font-semibold">
+          Contribution amount (KES)
+        </label>
         <input
           id="member-amount"
           type="number"
@@ -83,7 +123,11 @@ function TreasurerDashboard() {
         />
       </div>
 
-      {message && <p role="status" className="mt-3 text-sm text-gray-700">{message}</p>}
+      {message && (
+        <p role="status" className="mt-3 text-sm text-gray-700">
+          {message}
+        </p>
+      )}
 
       <button
         type="button"
@@ -95,14 +139,21 @@ function TreasurerDashboard() {
 
       <h3 className="mt-8 font-semibold">Members</h3>
       {members.length === 0 && (
-        <p className="mt-2 text-gray-600">No members yet. Add your first one above.</p>
+        <p className="mt-2 text-gray-600">
+          No members yet. Add your first one above.
+        </p>
       )}
       <ul className="mt-2">
         {members.map((m) => (
-          <li key={m.id} className="flex items-center justify-between gap-3 border-b border-gray-300 py-3">
+          <li
+            key={m.id}
+            className="flex items-center justify-between gap-3 border-b border-gray-300 py-3"
+          >
             <div>
               <p className="font-semibold">{m.name}</p>
-              <p className="text-sm text-gray-700">KES {m.amount} · {m.paid ? "Paid" : "Unpaid"}</p>
+              <p className="text-sm text-gray-700">
+                KES {m.amount} · {m.paid ? "Paid" : "Unpaid"}
+              </p>
             </div>
             {!m.paid && (
               <button
