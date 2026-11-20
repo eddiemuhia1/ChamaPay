@@ -12,7 +12,7 @@ function App() {
     <>
     <h1 className='text-3xl font-bold text-blue-600 p-6'>ChamaPay</h1>
 
-    <nav>
+    <nav className='px-6 pb-4'>
       <Link to="/home">Home</Link> |
       <Link to="/login">Login</Link> |
       <Link to="/signup">Sign Up</Link> 

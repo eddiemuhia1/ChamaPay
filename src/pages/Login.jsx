@@ -1,10 +1,12 @@
 import { auth, googleProvider } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Login (){
   const navigate = useNavigate()
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,6 +31,9 @@ function Login (){
       
     }
   }
+  if (user) {
+   return <Navigate to="/home" replace />;
+}
  
     return(
         <div className='min-h-screen items-center bg-gray-50 justify-center p-6'>
