@@ -3,6 +3,23 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 
+
+ export const getDaysUntilDue = (dateString) => {
+    if (!dateString) return 0;
+    const due = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+ export const getBadgeStyle = (status) => {
+    if (status === "Paid") return "border-green-600 text-green-700";
+    if (status === "Late") return "border-red-600 text-red-700";
+    return "border-gray-500 text-gray-700";
+  };
 function MemberDashboard() {
   const { user } = useAuth();
   
@@ -47,24 +64,6 @@ function MemberDashboard() {
     fetchMyData();
   }, [user]);
 
-
-  // Helper to calculate days remaining
-  const getDaysUntilDue = (dateString) => {
-    if (!dateString) return 0;
-    const due = new Date(dateString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const diffTime = due - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const getBadgeStyle = (status) => {
-    if (status === "Paid") return "border-green-600 text-green-700";
-    if (status === "Late") return "border-red-600 text-red-700";
-    return "border-gray-500 text-gray-700";
-  };
 
   if (loading) {
     return (
@@ -155,3 +154,5 @@ function MemberDashboard() {
 }
 
 export default MemberDashboard;
+
+//npx mocha "src/tests/MemberDashBoard.test.jsx" --require @babel/register
