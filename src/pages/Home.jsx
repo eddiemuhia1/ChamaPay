@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { auth } from '../firebase'
 import { useAuth } from '../context/AuthContext'
 import TreasurerDashboard from '../components/TreasurerDashboard'
+import MemberDashboard from '../components/MemberDashboard'
 
 
 function Home (){
@@ -24,7 +25,7 @@ function Home (){
            </div> 
           <div className="w-full max-w-sm">   
          {role === "treasurer" && <TreasurerDashboard />}
-         {role === "member" && <h2 className="mt-4 text-xl font-semibold">Member dashboard</h2>}
+         {role === "member" && <MemberDashboard />}
          {!role && <p className="mt-4 text-gray-600">Setting up your account...</p>} 
          </div>   
        </div>

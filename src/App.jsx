@@ -4,6 +4,7 @@ import PrivateRoutes from './components/PrivateRoutes'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import MemberDashboard from './components/MemberDashboard'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -18,9 +19,10 @@ function App() {
       <Link to="/home" className="border-b-2 border-transparent pb-1 transition-colors hover:border-blue-700 hover:text-blue-700">Home</Link> 
       <Link to="/login" className="border-b-2 border-transparent pb-1 transition-colors hover:border-blue-700 hover:text-blue-700"  >Login</Link> 
       <Link to="/signup" className="border-b-2 border-transparent pb-1 transition-colors hover:border-blue-700 hover:text-blue-700" >Sign Up</Link> 
+       <Link to="/member" className="border-b-2 border-transparent pb-1 transition-colors hover:border-blue-700 hover:text-blue-700" >Member View</Link> 
      </div> 
     </nav> 
-   
+  
     <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
@@ -29,6 +31,7 @@ function App() {
         {/* Protected routes — anything inside this route requires auth */}
         <Route element={<PrivateRoutes />}>
           <Route path="/home" element={<Home />} />
+           <Route path="/member" element={<MemberDashboard />} />
         </Route>
 
         {/* 404 */}
