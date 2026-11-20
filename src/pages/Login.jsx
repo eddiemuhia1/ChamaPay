@@ -26,7 +26,7 @@ function Login (){
       await signInWithEmailAndPassword(auth, email, password)
       navigate("/home")
     } catch (error) {
-      console.error("Error logging in:", err.message)
+      console.error("Error logging in:", error.message)
        setError("Could not log in. Check your email and password.");
       
     }
