@@ -3,30 +3,28 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 
+export const getDaysUntilDue = (dateString) => {
+  if (!dateString) return 0;
 
- export const getDaysUntilDue = (dateString) => {
-    if (!dateString) return 0;
-    const due = new Date(dateString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const diffTime = due - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
+  const due = new Date(dateString);
+  const today = new Date();
+  const oneDayInMs = 1000 * 60 * 60 * 24;
 
- export const getBadgeStyle = (status) => {
-    if (status === "Paid") return "border-green-600 text-green-700";
-    if (status === "Late") return "border-red-600 text-red-700";
-    return "border-gray-500 text-gray-700";
-  };
+  return Math.ceil((due - today) / oneDayInMs);
+};
+
+export const getBadgeStyle = (status) => {
+  if (status === "Paid") return "border-green-600 text-green-700";
+  if (status === "Late") return "border-red-600 text-red-700";
+  return "border-gray-500 text-gray-700";
+};
+
 function MemberDashboard() {
   const { user } = useAuth();
-  
+
   const [memberData, setMemberData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // We will keep history as mock data for now until you build a payment history feature
   const history = [
     { id: 1, amount: 1000, date: "2026-10-30", status: "Paid" },
     { id: 2, amount: 1000, date: "2026-09-30", status: "Paid" },
@@ -35,35 +33,25 @@ function MemberDashboard() {
   useEffect(() => {
     const fetchMyData = async () => {
       if (!user) return;
-      
+
       try {
-        // 1. Try to find the specific member linked to this login
         const q = query(collection(db, "members"), where("uid", "==", user.uid));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
           setMemberData(querySnapshot.docs[0].data());
         } else {
-          // 2. BOOTCAMP FALLBACK: If no link is found, just grab the first member in the database so we can see the UI!
-          console.log("No linked account found. Loading fallback data for testing...");
-          const fallbackSnapshot = await getDocs(collection(db, "members"));
-          
-          if (!fallbackSnapshot.empty) {
-            setMemberData(fallbackSnapshot.docs[0].data());
-          } else {
-            console.log("Database is completely empty.");
-          }
+          setMemberData(null);
         }
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching member data:", error);
-      } finally {
         setLoading(false);
       }
     };
 
     fetchMyData();
   }, [user]);
-
 
   if (loading) {
     return (
@@ -73,7 +61,6 @@ function MemberDashboard() {
     );
   }
 
-  // If no data was found, show a friendly empty state
   if (!memberData) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-white px-5 text-center">
@@ -88,9 +75,16 @@ function MemberDashboard() {
   const daysRemaining = getDaysUntilDue(memberData.dueDate);
   const isLate = daysRemaining < 0;
 
+  let bannerStyle = "border-orange-300 bg-orange-50 text-orange-800";
+  let bannerMessage = `Reminder: your contribution is due in ${daysRemaining} days. Please contact the treasurer to remit payment.`;
+
+  if (isLate) {
+    bannerStyle = "border-red-300 bg-red-50 text-red-800";
+    bannerMessage = `Your contribution is overdue by ${Math.abs(daysRemaining)} days. Please contact the treasurer to remit payment.`;
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-white pb-20">
-      
       {/* Header */}
       <div className="px-5 pt-6 pb-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -115,22 +109,15 @@ function MemberDashboard() {
 
         {/* Dynamic Reminder Banner */}
         {memberData.dueDate && (
-          <div className={`mt-5 rounded-lg border border-dashed px-4 py-3 text-sm font-medium ${
-            isLate 
-              ? "border-red-300 bg-red-50 text-red-800" 
-              : "border-orange-300 bg-orange-50 text-orange-800"
-          }`}>
-            {isLate 
-              ? `Your contribution is overdue by ${Math.abs(daysRemaining)} days. Please contact the treasurer to remit payment.`
-              : `Reminder: your contribution is due in ${daysRemaining} days. Please contact the treasurer to remit payment.`
-            }
+          <div className={`mt-5 rounded-lg border border-dashed px-4 py-3 text-sm font-medium ${bannerStyle}`}>
+            {bannerMessage}
           </div>
         )}
 
         {/* History Section */}
         <div className="mt-8">
           <h2 className="text-sm font-bold text-gray-900">My history</h2>
-          
+
           <ul className="mt-2 divide-y divide-gray-200">
             {history.map((record) => (
               <li key={record.id} className="flex items-center justify-between py-4">
@@ -140,7 +127,7 @@ function MemberDashboard() {
                   </p>
                   <p className="text-xs text-gray-500">{record.date}</p>
                 </div>
-                <span className={`rounded-full border px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getBadgeStyle(record.status)}`}>
+                <span className={`rounded-full border px-3 py-0.5 text-xs font-bold uppercase tracking-wide ${getBadgeStyle(record.status)}`}>
                   {record.status}
                 </span>
               </li>
@@ -148,11 +135,8 @@ function MemberDashboard() {
           </ul>
         </div>
       </div>
-      
     </div>
   );
 }
 
 export default MemberDashboard;
-
-//npx mocha "src/tests/MemberDashBoard.test.jsx" --require @babel/register
