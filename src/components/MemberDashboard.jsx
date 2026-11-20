@@ -149,20 +149,6 @@ function MemberDashboard() {
           </ul>
         </div>
       </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 flex border-t border-gray-200 bg-white px-2 py-3 pb-safe">
-        <button className="flex flex-1 flex-col items-center gap-1 text-[#1d63b8]">
-          <span className="text-[10px] font-bold">Home</span>
-          <div className="h-1 w-8 rounded-full bg-[#1d63b8] mt-1" />
-        </button>
-        <button className="flex flex-1 flex-col items-center gap-1 text-gray-400">
-          <span className="text-[10px] font-bold">History</span>
-        </button>
-        <button className="flex flex-1 flex-col items-center gap-1 text-gray-400">
-          <span className="text-[10px] font-bold">Group</span>
-        </button>
-      </div>
       
     </div>
   );
