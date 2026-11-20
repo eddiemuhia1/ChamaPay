@@ -9,15 +9,18 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-    <h1 className='text-3xl font-bold text-blue-600 p-6'>ChamaPay</h1>
+   <div className="min-h-screen bg-gray-60">    
 
-    <nav className='px-6 pb-4'>
-      <Link to="/home">Home</Link> |
-      <Link to="/login">Login</Link> |
-      <Link to="/signup">Sign Up</Link> 
-    </nav>
- 
+    <nav className='flex items-center justify-between bg-white px-6 py-4'>
+     <h1 className='text-2xl font-bold text-blue-700'>ChamaPay</h1> 
+      
+     <div className="flex gap-4 text-sm font-medium text-gray-600">
+      <Link to="/home" className="border-b-2 border-transparent pb-1 transition-colors hover:border-blue-700 hover:text-blue-700">Home</Link> 
+      <Link to="/login" className="border-b-2 border-transparent pb-1 transition-colors hover:border-blue-700 hover:text-blue-700"  >Login</Link> 
+      <Link to="/signup" className="border-b-2 border-transparent pb-1 transition-colors hover:border-blue-700 hover:text-blue-700" >Sign Up</Link> 
+     </div> 
+    </nav> 
+   
     <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
@@ -31,8 +34,8 @@ function App() {
         {/* 404 */}
         <Route path="*" element={<h2>404 - Page Not Found</h2>} />
       </Routes>
-     
-    </>
+   </div>  
+ 
   )
 }
 

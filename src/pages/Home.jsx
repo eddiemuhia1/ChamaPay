@@ -15,14 +15,18 @@ function Home (){
     }
     
     return(
-        <div className="min-h-screen bg-gray-100 p-6">
-           <h1 className="text-3xl font-bold">Chama Hub</h1>
-           <p className="mt-2">You are logged in as: {user ? user.email : "nobody"} </p>
-           <button type="button" onClick={handleLogOut} className="mt-6 rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white">Log Out</button> 
+        <div className="relative flex justify-center p-4 pt-10">
+          <div className="absolute right-6 top-4 flex items-center gap-4">
+            <span className="hidden text-sm text-gray-600 sm:inline">
+              {user ? user.email : "nobody"}  
+            </span>
+             <button type="button" onClick={handleLogOut} className="mt-6 rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white">Log Out</button> 
+           </div> 
+          <div className="w-full max-w-sm">   
          {role === "treasurer" && <TreasurerDashboard />}
          {role === "member" && <h2 className="mt-4 text-xl font-semibold">Member dashboard</h2>}
-        {!role && <p className="mt-4 text-gray-600">Setting up your account...</p>} 
-
+         {!role && <p className="mt-4 text-gray-600">Setting up your account...</p>} 
+         </div>   
        </div>
     )
 
