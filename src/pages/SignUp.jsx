@@ -1,12 +1,15 @@
-import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function SignUp (){
+  const navigate = useNavigate();
 
    const handleGoogleSignUp = async () => {
     try {
       const result = await signInWithPopup (auth, googleProvider);
       console.log("Signed up as:", result.user.displayName)
+      navigate("/")
     
     } catch (error) {
       console.error("Error signing up:", error.message)
