@@ -10,6 +10,7 @@ function MembersTab({ members }) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState(""); 
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,22 +25,25 @@ function MembersTab({ members }) {
   });
 
   const handleAddMember = async () => {
-    if (!name.trim() || !amount || !dueDate) {
-      setMessage("Enter name, amount, and a due date.");
-      return;
+    if (!name.trim() || !amount || !dueDate || !email.includes("@")) {
+       setMessage("Enter name, amount, a due date and a valid email.");
+       return;
     }
     try {
       await addDoc(collection(db, "members"), {
         name: name.trim(),
+        email: email.trim().toLowerCase(),
         amount: Number(amount),
         dueDate: dueDate,
         paid: false,
         treasurerId: user.uid,
       });
       
+      //clear the box
       setName("");
       setAmount("");
       setDueDate("");
+      setEmail("");
       setMessage("");
       setIsAdding(false); 
     } catch (err) {
@@ -82,6 +86,13 @@ function MembersTab({ members }) {
           <div className="mt-3 flex flex-col gap-1">
             <label className="text-xs font-semibold text-gray-700">Name</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          </div>
+
+          <div className="mt-3 flex flex-col gap-1">
+            <label htmlFor="member-email" className="text-xs font-semibold text-gray-700">
+             Member's email (the one they log in with) </label>
+            <input id="member-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"/>
           </div>
 
           <div className="mt-3 flex flex-col gap-1">

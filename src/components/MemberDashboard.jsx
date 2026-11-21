@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 
@@ -31,26 +31,26 @@ function MemberDashboard() {
   ];
 
   useEffect(() => {
-    const fetchMyData = async () => {
-      if (!user) return;
+    if (!user) return;
 
-      try {
-        const q = query(collection(db, "members"), where("uid", "==", user.uid));
-        const querySnapshot = await getDocs(q);
+    const q = query(
+      collection(db, "members"),
+      where("email", "==", user.email.toLowerCase())
+    );
 
-        if (!querySnapshot.empty) {
-          setMemberData(querySnapshot.docs[0].data());
-        } else {
-          setMemberData(null);
-        }
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        setMemberData(snap.empty ? null : snap.docs[0].data());
         setLoading(false);
-      } catch (error) {
+      },
+      (error) => {
         console.error("Error fetching member data:", error);
         setLoading(false);
       }
-    };
+    );
 
-    fetchMyData();
+    return unsubscribe;
   }, [user]);
 
   if (loading) {
@@ -83,6 +83,8 @@ function MemberDashboard() {
     bannerMessage = `Your contribution is overdue by ${Math.abs(daysRemaining)} days. Please contact the treasurer to remit payment.`;
   }
 
+  const showReminder = memberData.reminderSentAt && !memberData.paid;
+
   return (
     <div className="flex min-h-screen flex-col bg-white pb-20">
       {/* Header */}
@@ -106,6 +108,20 @@ function MemberDashboard() {
             {memberData.dueDate ? `Due ${memberData.dueDate}` : "No due date set"}
           </p>
         </div>
+
+        {/* Reminder sent by the treasurer */}
+        {showReminder && (
+          <div
+            role="alert"
+            className="mt-5 rounded-lg border border-orange-300 bg-orange-50 px-4 py-3 text-sm font-medium text-orange-800"
+          >
+            Your treasurer sent you a payment reminder
+            {memberData.reminderSentAt.toDate
+              ? ` on ${memberData.reminderSentAt.toDate().toLocaleDateString()}`
+              : ""}
+            . Please contact the treasurer to remit payment.
+          </div>
+        )}
 
         {/* Dynamic Reminder Banner */}
         {memberData.dueDate && (
