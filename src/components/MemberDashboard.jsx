@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
+import { getGroupLabel } from "../utils/groupName";
 
 export const getDaysUntilDue = (dateString) => {
   if (!dateString) return 0;
@@ -89,9 +90,7 @@ function MemberDashboard() {
     <div className="flex min-h-screen flex-col bg-white pb-20">
       {/* Header */}
       <div className="px-5 pt-6 pb-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-          [My Chama Group]
-        </p>
+        <p>{getGroupLabel(memberData.groupName, "Your chama group")}</p>
         <h1 className="mt-1 text-2xl font-bold text-gray-900">
           Hi, {memberData.name || user.email}
         </h1>
@@ -113,8 +112,7 @@ function MemberDashboard() {
         {showReminder && (
           <div
             role="alert"
-            className="mt-5 rounded-lg border border-orange-300 bg-orange-50 px-4 py-3 text-sm font-medium text-orange-800"
-          >
+            className="mt-5 rounded-lg border border-orange-300 bg-orange-50 px-4 py-3 text-sm font-medium text-orange-800" >
             Your treasurer sent you a payment reminder
             {memberData.reminderSentAt.toDate
               ? ` on ${memberData.reminderSentAt.toDate().toLocaleDateString()}`

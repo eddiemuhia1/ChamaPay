@@ -4,9 +4,10 @@ import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import OverviewTab from "./OverviewTab";
 import MembersTab from "./MembersTab";
+import { getGroupLabel } from "../utils/groupName";
 
 function TreasurerDashboard() {
-  const { user } = useAuth();
+  const { user, groupName } = useAuth();
   const [members, setMembers] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -29,8 +30,10 @@ function TreasurerDashboard() {
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-between bg-white text-gray-900">
       <section className="p-5 pb-24">
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-          Treasurer dashboard
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+              {getGroupLabel(groupName, "Your group")}</p>
+        <h2 className="mt-0.5 text-2xl font-bold tracking-tight text-gray-900">
+            Treasurer dashboard
         </h2>
 
         {activeTab === "overview" && <OverviewTab members={members} />}
@@ -45,8 +48,8 @@ function TreasurerDashboard() {
                 activeTab === tab
                   ? "border-[#1d63b8] font-semibold text-[#1d63b8]"
                   : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
-            >
+              }`} >
+            
               {tab}
             </button>
           ))}

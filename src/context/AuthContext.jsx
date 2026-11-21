@@ -5,12 +5,11 @@ import { auth, db } from "../firebase";
 
 const AuthContext = createContext();
 
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null); //role added
+  const [role, setRole] = useState(null);
+  const [groupName, setGroupName] = useState("");
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     let stopWatchingRecord = null;
@@ -25,17 +24,18 @@ export function AuthProvider({ children }) {
 
       if (!currentUser) {
         setRole(null);
+        setGroupName("");
         setLoading(false);
         return;
       }
 
-      //onSnapshot runs function now and again every time that record changes.
       stopWatchingRecord = onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
         setRole(snap.exists() ? snap.data().role : null);
+        setGroupName(snap.exists() ? snap.data().groupName || "" : "");
         setLoading(false);
       });
     });
-   
+
     return () => {
       stopWatchingLogin();
       if (stopWatchingRecord) stopWatchingRecord();
@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, role, loading }}>
+    <AuthContext.Provider value={{ user, role, groupName, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -52,6 +52,4 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
-
-
 
