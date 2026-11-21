@@ -4,7 +4,7 @@ import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 
 function MembersTab({ members }) {
-  const { user } = useAuth();
+  const { user, groupName } = useAuth();
   
   const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState("");
@@ -36,7 +36,7 @@ function MembersTab({ members }) {
         amount: Number(amount),
         dueDate: dueDate,
         paid: false,
-        treasurerId: user.uid,
+        treasurerId: user.uid, groupName
       });
       
       //clear the box
@@ -52,7 +52,7 @@ function MembersTab({ members }) {
     }
   };
 
-  // --- NEW: Helper logic for Dates and Badges ---
+  //Helper logic for Dates and Badges 
   const isLate = (dateString) => {
     if (!dateString) return false;
     const today = new Date();
@@ -73,8 +73,7 @@ function MembersTab({ members }) {
         <h2 className="text-xl font-bold text-gray-900">Members</h2>
         <button 
           onClick={() => setIsAdding(!isAdding)}
-          className="rounded-lg border border-[#1d63b8] bg-white px-4 py-1.5 text-sm font-semibold text-[#1d63b8]"
-        >
+          className="rounded-lg border border-[#1d63b8] bg-white px-4 py-1.5 text-sm font-semibold text-[#1d63b8]" >
           {isAdding ? "Cancel" : "Add member"}
         </button>
       </div>
@@ -115,13 +114,8 @@ function MembersTab({ members }) {
 
       <div className="mt-6">
         <label className="text-sm font-bold text-gray-900">Search members</label>
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-        />
+        <input type="text" placeholder="Search by name" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+          className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
 
         <div className="mt-3 flex gap-2">
           {["all", "paid", "unpaid"].map((f) => (
@@ -132,15 +126,14 @@ function MembersTab({ members }) {
                 filter === f
                   ? "bg-[#1d63b8] border-[#1d63b8] text-white"
                   : "bg-white border-gray-300 text-gray-600 hover:border-[#1d63b8]"
-              }`}
-            >
+              }`} >
               {f}
             </button>
           ))}
         </div>
       </div>
 
-      {/* --- NEW: The Actual Member List --- */}
+      {/* The Actual Member List */}
       <ul className="mt-4 divide-y divide-gray-200">
         {filteredMembers.length === 0 ? (
           <p className="py-4 text-sm text-gray-500">No members match your search.</p>

@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from "
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
+import { getGroupNameToSave, isGroupNameMissing } from "../utils/groupName";
 
 function Signup() {
   const navigate = useNavigate();
@@ -12,16 +13,26 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("member");
+  const [groupName, setGroupName] = useState("");
   const [error, setError] = useState("");
 
-   const handleSignup = async () => {
+  const cleanGroupName = getGroupNameToSave(role, groupName);
+
+  const handleSignup = async () => {
     setError("");
+    if (isGroupNameMissing(role, groupName)) {
+      setError("Enter a name for your group.");
+      return;
+    }
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(result.user, { displayName: name });
-
-      await setDoc(doc(db, "users", result.user.uid), { name, email, role }); //save user details on firestore database
-
+      await setDoc(doc(db, "users", result.user.uid), {
+        name,
+        email,
+        role,
+        groupName: cleanGroupName,
+      });
       navigate("/home");
     } catch (err) {
       console.error("Error signing up:", err.code);
@@ -35,17 +46,22 @@ function Signup() {
     }
   };
 
-    const handleGoogleSignUp = async () => {
+  const handleGoogleSignUp = async () => {
+    setError("");
+    if (role === "treasurer" && !cleanGroupName) {
+      setError("Enter a name for your group.");
+      return;
+    }
     try {
       const result = await signInWithPopup(auth, googleProvider);
-
       const userRef = doc(db, "users", result.user.uid);
-
       const snap = await getDoc(userRef);
       if (!snap.exists()) {
         await setDoc(userRef, {
           name: result.user.displayName,
-          email: result.user.email, role,
+          email: result.user.email,
+          role,
+          groupName: cleanGroupName,
         });
       }
       navigate("/home");
@@ -58,7 +74,6 @@ function Signup() {
     return <Navigate to="/home" replace />;
   }
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
       <div className="w-full max-w-sm flex flex-col gap-5">
@@ -69,29 +84,66 @@ function Signup() {
 
         <div className="flex flex-col gap-1">
           <label htmlFor="name" className="text-sm font-semibold">Full name</label>
-          <input id="name" type="text" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)}
-            className="rounded-lg border border-gray-400 px-3 py-3" />
+          <input
+            id="name"
+            type="text"
+            placeholder="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="rounded-lg border border-gray-400 px-3 py-3"
+          />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="text-sm font-semibold">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border border-gray-400 px-3 py-3" />
+          <label htmlFor="signup-email" className="text-sm font-semibold">Email</label>
+          <input
+            id="signup-email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="rounded-lg border border-gray-400 px-3 py-3"
+          />
         </div>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="signup-password" className="text-sm font-semibold">Password</label>
-          <input id="signup-password" type="password" placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)}
-            className="rounded-lg border border-gray-400 px-3 py-3" />
+          <input
+            id="signup-password"
+            type="password"
+            placeholder="At least 6 characters"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="rounded-lg border border-gray-400 px-3 py-3"
+          />
         </div>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="role" className="text-sm font-semibold">I am a</label>
-          <select id="role" value={role} onChange={(e) => setRole(e.target.value)} className="rounded-lg border border-gray-400 bg-white px-3 py-3">  
+          <select
+            id="role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="rounded-lg border border-gray-400 bg-white px-3 py-3"
+          >
             <option value="member">Member</option>
             <option value="treasurer">Treasurer</option>
           </select>
         </div>
+
+        {role === "treasurer" && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="group-name" className="text-sm font-semibold">Group name</label>
+            <input
+              id="group-name"
+              type="text"
+              placeholder="e.g. Umoja Savings Group"
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              className="rounded-lg border border-gray-400 px-3 py-3"
+            />
+          </div>
+        )}
 
         {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
 
