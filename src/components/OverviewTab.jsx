@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import CurrencyEquivalent from "./CurrencyEquivalent";
 
 function OverviewTab({ members }) {
   const [message, setMessage] = useState("");
@@ -41,6 +42,7 @@ function OverviewTab({ members }) {
         <p className="mt-1 text-2xl font-bold text-gray-900">
           KES {totalCollected.toLocaleString()}
         </p>
+        <CurrencyEquivalent amountKES={totalCollected} />
       </div>
 
       <div className="mt-3 rounded-xl border border-gray-300 bg-white p-4">

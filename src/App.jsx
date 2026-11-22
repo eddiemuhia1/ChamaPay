@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Route, Routes, Link } from 'react-router'
+import { Route, Navigate, Routes, Link } from 'react-router'
 import PrivateRoutes from './components/PrivateRoutes'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
@@ -25,6 +25,7 @@ function App() {
   
     <Routes>
         {/* Public routes */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
 

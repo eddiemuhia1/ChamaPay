@@ -3,6 +3,7 @@ import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import { getGroupLabel } from "../utils/groupName";
+import CurrencyEquivalent from "./CurrencyEquivalent";
 
 export const getDaysUntilDue = (dateString) => {
   if (!dateString) return 0;
@@ -103,6 +104,7 @@ function MemberDashboard() {
           <p className="mt-1 text-3xl font-bold text-gray-900">
             KES {memberData.amount ? memberData.amount.toLocaleString() : "0"}
           </p>
+          <CurrencyEquivalent amountKES={memberData.amount || 0} />
           <p className="mt-1 text-sm text-gray-500">
             {memberData.dueDate ? `Due ${memberData.dueDate}` : "No due date set"}
           </p>
