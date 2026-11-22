@@ -1,9 +1,5 @@
 import { expect } from "chai";
-import {
-  getGroupNameToSave,
-  isGroupNameMissing,
-  getGroupLabel,
-} from "../src/utils/groupName.js";
+import {getGroupNameToSave, isGroupNameMissing, getGroupLabel,} from "../src/utils/groupName.js";
 
 describe("getGroupNameToSave", () => {
   it("keeps the group name for a treasurer", () => {
