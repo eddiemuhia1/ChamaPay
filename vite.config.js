@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+    base: '/ChamaPay/',
   plugins: [react(), tailwindcss()],
   server: {
     headers: {
@@ -12,3 +13,4 @@ export default defineConfig({
   },
 
 })
+
