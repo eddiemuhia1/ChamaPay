@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
+import { getRemoveConfirmMessage, canRemoveMember } from "../utils/members";
 
 function MembersTab({ members }) {
   const { user, groupName } = useAuth();
@@ -12,7 +13,7 @@ function MembersTab({ members }) {
   const [dueDate, setDueDate] = useState(""); 
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-
+  const [removeError, setRemoveError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all"); 
 
@@ -66,6 +67,18 @@ function MembersTab({ members }) {
     if (isLate(member.dueDate)) return "border-red-600 text-red-700";
     return "border-gray-500 text-gray-700"; // Standard unpaid
   };
+  const handleRemoveMember = async (member) => {
+  if (!canRemoveMember(member, user.uid)) return;
+  if (!window.confirm(getRemoveConfirmMessage(member))) return;
+
+  setRemoveError("");
+  try {
+    await deleteDoc(doc(db, "members", member.id));
+  } catch (err) {
+    console.error("Error removing member:", err.message);
+    setRemoveError("Could not remove the member. Try again.");
+  }
+};
 
   return (
     <div className="mt-5">
@@ -134,10 +147,11 @@ function MembersTab({ members }) {
       </div>
 
       {/* The Actual Member List */}
+      {removeError && <p role="alert" className="mt-3 text-xs text-red-600">{removeError}</p>}
       <ul className="mt-4 divide-y divide-gray-200">
         {filteredMembers.length === 0 ? (
           <p className="py-4 text-sm text-gray-500">No members match your search.</p>
-        ) : (
+           ) : (
           filteredMembers.map((m) => {
             const late = !m.paid && isLate(m.dueDate);
             return (
@@ -152,10 +166,15 @@ function MembersTab({ members }) {
                   </div>
                 </div>
                 
-                {/* Status Badge */}
-                <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getBadgeStyle(m)}`}>
-                  {m.paid ? "Paid" : late ? "Late" : "Unpaid"}
-                </span>
+               <div className="flex items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getBadgeStyle(m)}`}>
+                    {m.paid ? "Paid" : late ? "Late" : "Unpaid"}
+                  </span>
+                  <button type="button" onClick={() => handleRemoveMember(m)} aria-label={`Remove ${m.name}`}
+                    className="rounded-lg border border-red-600 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50" >
+                    Remove
+                  </button>
+                </div>
               </li>
             );
           })
