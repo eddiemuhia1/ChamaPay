@@ -1,16 +1,78 @@
-# React + Vite
+ChamaPay
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ChamaPay helps savings groups (chamas) keep track of contributions. A treasurer adds members, records who has paid and sends payment reminders. Members log in to see what they owe and when it is due.
 
-Currently, two official plugins are available:
+Live demo: https://eddiemuhia1.github.io/ChamaPay/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Features
 
-## React Compiler
+Everyone
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Sign up and log in with email and password, or with Google
+Two roles, treasurer and member, chosen at sign up
+Protected pages: only logged-in people can see their dashboard
 
-## Expanding the ESLint configuration
+Treasurer
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Names the group when signing up
+Sees the total collected, a progress bar and the list of unpaid members
+Adds members with a name, email, amount and due date
+Marks members as paid
+Sends a payment reminder to all unpaid members
+Searches and filters the member list, and removes members
+Sees the group total in USD, GBP or EUR
+
+Member
+
+Sees their group name, contribution amount and due date
+Sees a reminder banner as soon as the treasurer sends one, with no refresh
+Sees their contribution in USD, GBP or EUR
+How members are linked to their account
+
+When the treasurer adds a member, they type that member's email. The member then signs up with the same email, and the app finds their record automatically.
+
+Tech Stack
+
+React and Vite
+Tailwind CSS
+React Router
+Firebase Authentication and Cloud Firestore
+Mocha and Chai for tests
+GitHub Actions and GitHub Pages for deployment
+API used
+
+Exchange rates come from the ExchangeRate-API open endpoint:
+
+https://open.er-api.com/v6/latest/KES
+
+The app fetches it with fetch in src/components/CurrencyEquivalent.jsx and uses the rates to show amounts in USD, GBP or EUR. Rates by Exchange Rate API.
+
+Data
+
+Users, members and reminders are stored in Cloud Firestore, so everything is still there after a refresh. Treasurers can create, view, update (mark paid, send reminders) and delete members.
+
+Getting started
+bash
+git clone https://github.com/eddiemuhia1/ChamaPay.git
+cd ChamaPay
+npm install
+npm run dev
+
+Open the address shown in the terminal. It ends in /ChamaPay/.
+
+To run your own copy, create a Firebase project, turn on Email/Password and Google sign-in under Authentication, create a Firestore database, and put your Firebase settings in src/firebase.js.
+
+Tests
+bash
+npm test
+
+The Mocha tests in the test folder cover the reminder logic, the group name rules, the exchange rate conversion and the rules for removing a member.
+
+Project structure
+src/
+  components/   dashboard tabs, member and treasurer views, currency display
+  context/      AuthContext: who is logged in, their role and group name
+  pages/        Login, SignUp and Home
+  utils/        small logic functions that the tests check
+  firebase.js   Firebase setup
+test/           Mocha tests
